@@ -59,6 +59,7 @@ await client.ready();
 | `maxConcurrency` | `number` | - | 全局并发上限 1-10，默认 `6` |
 | `defaultPartSize` | `number` | - | 默认分片大小（字节），默认自适应 |
 | `customDomain` | `string` | - | 自定义域名，用于上传后 URL 拼接 |
+| `keyPrefix` | `string` | - | 对象键前缀，如 `"avatar"` 或 `"chat/images"`，自动加到所有操作的 objectKey 前 |
 
 ---
 
@@ -510,6 +511,7 @@ const client = new OBSClient({
   secretAccessKey: 'SK',
   securityToken: 'STS_TOKEN',
   customDomain: 'cdn.example.com',
+  keyPrefix: 'avatar', // 上传到 avatar/ 目录下
 });
 
 // 2. 等待初始化

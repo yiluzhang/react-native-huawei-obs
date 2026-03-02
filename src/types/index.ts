@@ -54,6 +54,14 @@ export interface OBSClientConfig {
    * 设置后 UploadResult.objectUrl 将使用此域名替换 OBS 默认域名
    */
   customDomain?: string;
+
+  /**
+   * 对象键前缀，用于区分不同业务模块
+   * 例如: "avatar" 或 "chat/images"
+   * 设置后所有 upload/download/delete 的 objectKey 会自动加上 "{keyPrefix}/" 前缀
+   * 末尾的 "/" 会自动处理，无需手动添加
+   */
+  keyPrefix?: string;
 }
 
 /**

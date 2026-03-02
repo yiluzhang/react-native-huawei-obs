@@ -47,6 +47,7 @@ export class OBSClient {
   private isDestroyed: boolean = false;
   private initPromise: Promise<void>;
   private customDomain: string | null = null;
+  private keyPrefix: string | null = null;
 
   /**
    * 创建 OBS 客户端实例
@@ -60,6 +61,10 @@ export class OBSClient {
         .replace(/^https?:\/\//, '')
         .replace(/\/$/, '');
     }
+    if (config.keyPrefix) {
+      // 去掉首尾斜杠，运行时自动添加 "/"
+      this.keyPrefix = config.keyPrefix.replace(/^\/+/, '').replace(/\/+$/, '');
+    }
     this.setupNativeListeners();
     this.initPromise = this.initializeClient();
   }
@@ -70,6 +75,13 @@ export class OBSClient {
    */
   ready(): Promise<void> {
     return this.initPromise;
+  }
+
+  /**
+   * 为 objectKey 添加配置的前缀
+   */
+  private prefixKey(objectKey: string): string {
+    return this.keyPrefix ? `${this.keyPrefix}/${objectKey}` : objectKey;
   }
 
   /**
@@ -270,7 +282,7 @@ export class OBSClient {
 
         const taskId = await HuaweiObsNative.upload({
           filePath,
-          objectKey,
+          objectKey: this.prefixKey(objectKey),
           bucket: this.config.bucket,
           contentType: options?.contentType,
           metadata: options?.metadata,
@@ -335,7 +347,7 @@ export class OBSClient {
 
         const taskId = await HuaweiObsNative.multipartUpload({
           filePath,
-          objectKey,
+          objectKey: this.prefixKey(objectKey),
           bucket: this.config.bucket,
           contentType: options?.contentType,
           metadata: options?.metadata,
@@ -394,7 +406,7 @@ export class OBSClient {
         await this.initPromise;
 
         const taskId = await HuaweiObsNative.download({
-          objectKey,
+          objectKey: this.prefixKey(objectKey),
           bucket: this.config.bucket,
           savePath,
           range: options?.range,
@@ -422,7 +434,7 @@ export class OBSClient {
     try {
       await HuaweiObsNative.deleteObject({
         bucket: this.config.bucket,
-        objectKey,
+        objectKey: this.prefixKey(objectKey),
       });
     } catch (error: any) {
       throw this.mapNativeError(error);
@@ -437,7 +449,7 @@ export class OBSClient {
     try {
       const results = await HuaweiObsNative.deleteMultipleObjects({
         bucket: this.config.bucket,
-        objectKeys,
+        objectKeys: objectKeys.map((k) => this.prefixKey(k)),
       });
       return results as any as DeleteResult[];
     } catch (error: any) {
