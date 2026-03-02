@@ -2,6 +2,13 @@
 
 华为云 OBS (对象存储服务) React Native SDK。支持文件上传（自动分片）、下载、删除，提供完整的进度回调和任务控制。
 
+## 底层 SDK 版本
+
+| 平台 | SDK | 版本 |
+|---|---|---|
+| Android | [esdk-obs-android](https://github.com/huaweicloud/huaweicloud-sdk-java-obs) | 3.25.4 |
+| iOS | [esdk-obs-ios](https://github.com/huaweicloud/huaweicloud-sdk-c-obs) | 3.25.6 |
+
 ## 安装
 
 ```bash
