@@ -1,0 +1,11 @@
+# Build outputs
+build/
+.gradle/
+local.properties
+
+# Android Studio
+*.iml
+.idea/
+
+# Autolinking cache (regenerated on each build, must NOT be committed)
+build/generated/autolinking/
