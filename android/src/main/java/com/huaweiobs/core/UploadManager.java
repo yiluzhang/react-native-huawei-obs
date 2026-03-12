@@ -275,7 +275,7 @@ public class UploadManager {
             PutObjectResult response = obsClientHolder.getClient().putObject(request);
 
             long duration = System.currentTimeMillis() - startTime;
-            double avgSpeed = duration > 0 ? (fileInfo.fileSize * 1000.0 / duration) : 0;
+            double avgSpeed = duration > 0 ? Math.round(fileInfo.fileSize * 1000.0 / duration * 100.0) / 100.0 : 0;
             Log.i(TAG, "[PutObject] done: etag=" + response.getEtag()
                     + "  duration=" + duration + "ms"
                     + "  speed=" + String.format("%.1f", avgSpeed / 1024) + " KB/s");
@@ -476,14 +476,6 @@ public class UploadManager {
             // Update transferred bytes
             long transferred = taskState.transferredBytes.addAndGet(data.length);
 
-            // Send partComplete event
-            Map<String, Object> partEvent = new HashMap<>();
-            partEvent.put("taskId", params.taskId);
-            partEvent.put("partNumber", partNumber);
-            partEvent.put("etag", etag);
-            partEvent.put("uploadedBytes", transferred);
-            eventEmitter.emit("partComplete", partEvent);
-
             // Force emit accurate progress after part completion
             int percentage = taskState.totalBytes > 0 ? (int)(transferred * 100 / taskState.totalBytes) : 0;
             Map<String, Object> progressEvent = new HashMap<>();
@@ -537,7 +529,7 @@ public class UploadManager {
             Log.i(TAG, "[Multipart] completing upload, parts=" + sortedParts.size() + "  uploadId=" + taskState.uploadId);
             CompleteMultipartUploadResult response = obsClientHolder.getClient().completeMultipartUpload(request);
             long duration = System.currentTimeMillis() - params.startTimeMs;
-            double avgSpeed = duration > 0 ? (taskState.totalBytes * 1000.0) / duration : 0.0;
+            double avgSpeed = duration > 0 ? Math.round(taskState.totalBytes * 1000.0 / duration * 100.0) / 100.0 : 0.0;
             Log.i(TAG, "[Multipart] complete done: etag=" + response.getEtag()
                     + "  duration=" + duration + "ms"
                     + "  speed=" + String.format("%.1f", avgSpeed / 1024) + " KB/s");

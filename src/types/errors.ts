@@ -46,7 +46,6 @@ export enum OBSErrorCode {
   // ========== 任务 ==========
   TASK_NOT_FOUND = 'E_TASK_NOT_FOUND',
   TASK_CANCELED = 'E_TASK_CANCELED',
-  TASK_PAUSED = 'E_TASK_PAUSED',
 
   // ========== 并发 ==========
   CONCURRENCY_LIMIT_EXCEEDED = 'E_CONCURRENCY_LIMIT_EXCEEDED',

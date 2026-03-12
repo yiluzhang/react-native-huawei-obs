@@ -149,9 +149,6 @@ const handle = client.upload(
 |---|---|---|
 | `partSize` | `number` | 分片大小（字节），范围 5MB-5GB，默认自适应 |
 | `concurrency` | `number` | 并发上传数 1-10，默认 `6` |
-| `onPartComplete` | `(info: PartCompleteInfo) => void` | 分片完成回调 |
-| `onPause` | `(taskId: string) => void` | 暂停回调 |
-| `onResume` | `(taskId: string) => void` | 恢复回调 |
 | `onCancel` | `(taskId: string) => void` | 取消回调 |
 
 **分片自适应策略：**
@@ -267,12 +264,9 @@ client.once('uploadSuccess', (result) => { ... });
 | `uploadPreparing` | `{ taskId, objectKey, copyProgress }` | 文件准备中（content:// 复制） |
 | `uploadStart` | `{ taskId, objectKey, totalBytes }` | 上传开始 |
 | `uploadProgress` | `UploadProgress` | 上传进度 |
-| `partComplete` | `PartCompleteInfo` | 分片完成 |
 | `uploadSuccess` | `UploadResult` | 上传成功 |
 | `uploadError` | `OBSError` | 上传失败 |
 | `uploadCancel` | `taskId: string` | 上传取消 |
-| `uploadPause` | `taskId: string` | 上传暂停 |
-| `uploadResume` | `taskId: string` | 上传恢复 |
 | `downloadStart` | `{ taskId, objectKey, totalBytes }` | 下载开始 |
 | `downloadProgress` | `DownloadProgress` | 下载进度 |
 | `downloadSuccess` | `DownloadResult` | 下载成功 |
@@ -385,17 +379,6 @@ await client.destroy();
 }
 ```
 
-### `PartCompleteInfo` — 分片完成信息
-
-```typescript
-{
-  taskId: string;         // 任务 ID
-  partNumber: number;     // 分片序号
-  etag: string;           // 分片 ETag
-  uploadedBytes: number;  // 已上传总字节数
-}
-```
-
 ### `OBSError` — 错误对象
 
 ```typescript
@@ -492,7 +475,6 @@ await client.destroy();
 |---|---|
 | `E_TASK_NOT_FOUND` | 任务不存在 |
 | `E_TASK_CANCELED` | 任务已取消 |
-| `E_TASK_PAUSED` | 任务已暂停 |
 | `E_CANCELLED` | 任务已被取消 |
 
 ### 并发错误

@@ -127,12 +127,6 @@ export class OBSClient {
     );
 
     this.nativeListeners.push(
-      eventEmitter.addListener('partComplete', (event) => {
-        this.emit('partComplete', event);
-      })
-    );
-
-    this.nativeListeners.push(
       eventEmitter.addListener('uploadSuccess', (event) => {
         // 如果配置了自定义域名，替换 objectUrl
         const result = { ...event };
@@ -255,8 +249,6 @@ export class OBSClient {
       '', // taskId 由 native 返回
       'upload',
       async (taskId) => this.getTaskStatus(taskId),
-      undefined, // pause
-      undefined, // resume
       (taskId) => this.cancelUpload(taskId)
     );
 
@@ -321,8 +313,6 @@ export class OBSClient {
       '',
       'upload',
       async (taskId) => this.getTaskStatus(taskId),
-      (taskId) => this.pauseUpload(taskId),
-      (taskId) => this.resumeUpload(taskId),
       (taskId) => this.cancelUpload(taskId)
     );
 
@@ -384,8 +374,6 @@ export class OBSClient {
       '',
       'download',
       async (taskId) => this.getTaskStatus(taskId),
-      undefined,
-      undefined,
       (taskId) => this.cancelDownload(taskId)
     );
 
@@ -458,36 +446,6 @@ export class OBSClient {
   }
 
   /**
-   * 暂停上传
-   */
-  private async pauseUpload(taskId: string): Promise<void> {
-    try {
-      await HuaweiObsNative.pauseUpload(taskId);
-    } catch (error: any) {
-      throw this.mapNativeError(error);
-    }
-  }
-
-  /**
-   * 恢复上传
-   */
-  private async resumeUpload(taskId: string): Promise<UploadResult> {
-    try {
-      await HuaweiObsNative.resumeUpload(taskId);
-      const handle = this.taskHandles.get(taskId);
-      if (handle) {
-        return await handle.promise();
-      }
-      throw new OBSError({
-        code: OBSErrorCode.TASK_NOT_FOUND,
-        message: `Task ${taskId} not found`,
-      });
-    } catch (error: any) {
-      throw this.mapNativeError(error);
-    }
-  }
-
-  /**
    * 取消上传
    */
   private async cancelUpload(taskId: string): Promise<void> {
@@ -496,7 +454,7 @@ export class OBSClient {
     }
     try {
       await HuaweiObsNative.cancelUpload(taskId);
-      this.taskHandles.delete(taskId);
+      // 不在此处删除 handle：等待原生 uploadCancel 事件触发后统一清理并 reject promise
     } catch (error: any) {
       throw this.mapNativeError(error);
     }
@@ -511,7 +469,7 @@ export class OBSClient {
     }
     try {
       await HuaweiObsNative.cancelDownload(taskId);
-      this.taskHandles.delete(taskId);
+      // 不在此处删除 handle：等待原生 downloadCancel 事件触发后统一清理并 reject promise
     } catch (error: any) {
       throw this.mapNativeError(error);
     }
@@ -563,6 +521,16 @@ export class OBSClient {
     try {
       await HuaweiObsNative.updateConfig(config as any);
       this.config = { ...this.config, ...config };
+      if ('customDomain' in config) {
+        this.customDomain = config.customDomain
+          ? config.customDomain.replace(/^https?:\/\//, '').replace(/\/$/, '')
+          : null;
+      }
+      if ('keyPrefix' in config) {
+        this.keyPrefix = config.keyPrefix
+          ? config.keyPrefix.replace(/^\/+/, '').replace(/\/+$/, '')
+          : null;
+      }
     } catch (error: any) {
       throw this.mapNativeError(error);
     }
@@ -653,7 +621,12 @@ export class OBSClient {
       this.nativeListeners = [];
       this.eventListeners.clear();
 
-      // 清理所有任务句柄
+      // reject 所有未完成的任务句柄，防止 promise 永久挂起
+      const destroyError = new OBSError({
+        code: OBSErrorCode.UNKNOWN,
+        message: 'OBS client has been destroyed',
+      });
+      this.taskHandles.forEach((handle) => handle._cancel(destroyError));
       this.taskHandles.clear();
 
       // 销毁原生客户端

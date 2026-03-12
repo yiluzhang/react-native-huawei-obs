@@ -169,11 +169,6 @@ export interface Credentials {
 }
 
 /**
- * 网络类型
- */
-export type NetworkType = 'WIFI' | '4G' | '3G' | '2G' | 'UNKNOWN';
-
-/**
  * 原生模块接口
  * Native 层（iOS/Android）实现这些方法
  */
@@ -192,8 +187,6 @@ export interface NativeHuaweiObs {
   // ========== 上传 ==========
   upload(params: Record<string, any>): Promise<string>; // 返回 taskId
   multipartUpload(params: Record<string, any>): Promise<string>; // 返回 taskId
-  pauseUpload(taskId: string): Promise<void>;
-  resumeUpload(taskId: string): Promise<void>;
   cancelUpload(taskId: string): Promise<void>;
 
   // ========== 下载 ==========
@@ -214,5 +207,4 @@ export interface NativeHuaweiObs {
   // ========== 系统信息 ==========
   getAvailableMemory(): Promise<number>;
   getTotalMemory(): Promise<number>;
-  getNetworkType(): Promise<NetworkType>;
 }

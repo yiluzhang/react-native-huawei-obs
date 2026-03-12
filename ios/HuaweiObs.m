@@ -40,7 +40,6 @@ RCT_EXPORT_MODULE()
         @"uploadSuccess",
         @"uploadError",
         @"uploadCancel",
-        @"partComplete",
         @"downloadStart",
         @"downloadProgress",
         @"downloadSuccess",
@@ -267,18 +266,6 @@ RCT_EXPORT_METHOD(cancelUpload:(NSString *)taskId
 }
 
 // ==================== Download ====================
-
-RCT_EXPORT_METHOD(pauseUpload:(NSString *)taskId
-                  resolver:(RCTPromiseResolveBlock)resolve
-                  rejecter:(RCTPromiseRejectBlock)reject) {
-    reject(@"E_NOT_IMPLEMENTED", @"Pause upload not implemented on iOS", nil);
-}
-
-RCT_EXPORT_METHOD(resumeUpload:(NSString *)taskId
-                  resolver:(RCTPromiseResolveBlock)resolve
-                  rejecter:(RCTPromiseRejectBlock)reject) {
-    reject(@"E_NOT_IMPLEMENTED", @"Resume upload not implemented on iOS", nil);
-}
 
 RCT_EXPORT_METHOD(download:(NSDictionary *)params
             resolver:(RCTPromiseResolveBlock)resolve

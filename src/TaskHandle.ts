@@ -50,9 +50,7 @@ export class TaskHandle<T extends UploadResult | DownloadResult> {
     taskId: string,
     type: TaskType,
     private getStatusFn: (taskId: string) => Promise<TaskStatus | null>,
-    private pauseFn?: (taskId: string) => Promise<void>,
-    private resumeFn?: (taskId: string) => Promise<T>,
-    private cancelFn?: (taskId: string, force?: boolean) => Promise<void>
+    private cancelFn?: (taskId: string) => Promise<void>
   ) {
     this._taskId = taskId;
     this.type = type;
@@ -81,55 +79,9 @@ export class TaskHandle<T extends UploadResult | DownloadResult> {
   }
 
   /**
-   * 暂停任务（仅上传支持）
-   * @throws 下载任务或无法暂停时抛出错误
-   */
-  async pause(): Promise<void> {
-    if (this.type !== 'upload') {
-      throw new OBSError({
-        code: 'E_NOT_IMPLEMENTED',
-        message: 'Only upload tasks support pause',
-      });
-    }
-
-    if (!this.pauseFn) {
-      throw new OBSError({
-        code: 'E_NOT_IMPLEMENTED',
-        message: 'Pause function not available',
-      });
-    }
-
-    await this.pauseFn(this.taskId);
-  }
-
-  /**
-   * 恢复任务（仅上传支持）
-   * @throws 任务未暂停或无法恢复时抛出错误
-   * @returns Promise<T>
-   */
-  async resume(): Promise<T> {
-    if (this.type !== 'upload') {
-      throw new OBSError({
-        code: 'E_NOT_IMPLEMENTED',
-        message: 'Only upload tasks support resume',
-      });
-    }
-
-    if (!this.resumeFn) {
-      throw new OBSError({
-        code: 'E_NOT_IMPLEMENTED',
-        message: 'Resume function not available',
-      });
-    }
-
-    return await this.resumeFn(this.taskId);
-  }
-
-  /**
    * 取消任务
-   * @param force 是否强制取消（跳过本地资源清理）
    */
-  async cancel(force: boolean = false): Promise<void> {
+  async cancel(): Promise<void> {
     if (!this.cancelFn) {
       throw new OBSError({
         code: 'E_NOT_IMPLEMENTED',
@@ -137,7 +89,7 @@ export class TaskHandle<T extends UploadResult | DownloadResult> {
       });
     }
 
-    await this.cancelFn(this.taskId, force);
+    await this.cancelFn(this.taskId);
   }
 
   /**

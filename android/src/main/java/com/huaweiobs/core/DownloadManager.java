@@ -225,7 +225,7 @@ public class DownloadManager {
 
             // Download complete
             long duration = System.currentTimeMillis() - params.startTimeMs;
-            double avgSpeed = duration > 0 ? (taskState.totalBytes * 1000.0) / duration : 0.0;
+            double avgSpeed = duration > 0 ? Math.round(taskState.totalBytes * 1000.0 / duration * 100.0) / 100.0 : 0.0;
 
             DownloadResult result = new DownloadResult(
                     params.taskId,

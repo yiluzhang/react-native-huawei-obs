@@ -275,16 +275,6 @@ public class HuaweiObsModule extends ReactContextBaseJavaModule implements Lifec
     }
 
     @ReactMethod
-    public void pauseUpload(String taskId, Promise promise) {
-        promise.reject("E_NOT_IMPLEMENTED", "Pause upload not implemented");
-    }
-
-    @ReactMethod
-    public void resumeUpload(String taskId, Promise promise) {
-        promise.reject("E_NOT_IMPLEMENTED", "Resume upload not implemented");
-    }
-
-    @ReactMethod
     public void cancelUpload(String taskId, Promise promise) {
         try {
             checkInitialized();
@@ -541,12 +531,6 @@ public class HuaweiObsModule extends ReactContextBaseJavaModule implements Lifec
             OBSException obsError = ErrorMapper.mapException(e);
             promise.reject(obsError.getCode(), obsError.getMessage(), obsError);
         }
-    }
-
-    @ReactMethod
-    public void getNetworkType(Promise promise) {
-        // Simplified implementation
-        promise.resolve("UNKNOWN");
     }
 
     // ==================== File Utilities ====================

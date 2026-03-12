@@ -321,8 +321,8 @@ static const int64_t MULTIPART_THRESHOLD = 5 * 1024 * 1024;  // 5MB：低于此�
     
     OBSPutObjectResponse *response = task.result;
     
-    NSTimeInterval duration = ([[NSDate date] timeIntervalSince1970] * 1000) - params.startTimeMs;
-    double avgSpeed = duration > 0 ? (fileInfo.fileSize * 1000.0) / duration : 0.0;
+    NSTimeInterval duration = round(([[NSDate date] timeIntervalSince1970] * 1000) - params.startTimeMs);
+    double avgSpeed = duration > 0 ? round((fileInfo.fileSize * 1000.0) / duration * 100.0) / 100.0 : 0.0;
     OBSLog(TAG, @"[PutObject] done: etag=%@  duration=%.0fms  speed=%.1f KB/s",
            response.etag, duration, avgSpeed / 1024);
     
@@ -580,15 +580,6 @@ static const int64_t MULTIPART_THRESHOLD = 5 * 1024 * 1024;  // 5MB：低于此�
                partNumber, totalParts, (unsigned long)[data length],
              response.etag, transferredBytes, taskState.totalBytes);
         
-        // Send partComplete event
-        [self.eventEmitter emitWithEventName:@"partComplete" 
-                                     params:@{
-                                         @"taskId": params.taskId,
-                                         @"partNumber": @(partNumber),
-                                         @"etag": response.etag,
-                                         @"uploadedBytes": @(transferredBytes)
-                                     }];
-        
         // Send progress event (force emit accurate value after part completion)
         NSInteger percentage = taskState.totalBytes > 0 ? (NSInteger)(transferredBytes * 100 / taskState.totalBytes) : 0;
         [self.eventEmitter emitProgressWithTaskId:params.taskId 
@@ -652,8 +643,8 @@ static const int64_t MULTIPART_THRESHOLD = 5 * 1024 * 1024;  // 5MB：低于此�
     
     OBSCompleteMultipartUploadResponse *response = task.result;
     
-    NSTimeInterval duration = ([[NSDate date] timeIntervalSince1970] * 1000) - params.startTimeMs;
-    double avgSpeed = duration > 0 ? (taskState.totalBytes * 1000.0) / duration : 0.0;
+    NSTimeInterval duration = round(([[NSDate date] timeIntervalSince1970] * 1000) - params.startTimeMs);
+    double avgSpeed = duration > 0 ? round((taskState.totalBytes * 1000.0) / duration * 100.0) / 100.0 : 0.0;
     OBSLog(TAG, @"[Multipart] complete done  etag=%@  duration=%.0fms  speed=%.1f KB/s",
            response.etag, duration, avgSpeed / 1024);
     

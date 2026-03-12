@@ -106,15 +106,6 @@ export interface MultipartUploadOptions extends UploadOptions {
   /** 并发数，范围 1-10，受全局并发约束 */
   concurrency?: number;
 
-  /** 分片完成回调 */
-  onPartComplete?: (info: PartCompleteInfo) => void;
-
-  /** 暂停回调 */
-  onPause?: (taskId: string) => void;
-
-  /** 恢复回调 */
-  onResume?: (taskId: string) => void;
-
   /** 取消回调 */
   onCancel?: (taskId: string) => void;
 }
@@ -230,16 +221,6 @@ export interface DeleteResult {
 }
 
 /**
- * 分片完成信息
- */
-export interface PartCompleteInfo {
-  taskId: string;
-  partNumber: number;
-  etag: string;
-  uploadedBytes: number;
-}
-
-/**
  * OBS 错误
  */
 export class OBSError extends Error {
@@ -312,14 +293,12 @@ export enum ACL {
  * 事件名称
  */
 export type OBSEventName =
+  | 'uploadPreparing'
   | 'uploadStart'
   | 'uploadProgress'
-  | 'uploadPause'
-  | 'uploadResume'
   | 'uploadCancel'
   | 'uploadSuccess'
   | 'uploadError'
-  | 'partComplete'
   | 'downloadStart'
   | 'downloadProgress'
   | 'downloadCancel'

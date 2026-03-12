@@ -224,8 +224,8 @@ static const NSTimeInterval PROGRESS_UPDATE_INTERVAL = 0.1; // 100ms
         [self emitDownloadProgress:taskState force:YES];
         
         // Download complete
-        NSTimeInterval duration = ([[NSDate date] timeIntervalSince1970] * 1000) - params.startTimeMs;
-        double avgSpeed = duration > 0 ? (taskState.totalBytes * 1000.0) / duration : 0.0;
+        NSTimeInterval duration = round(([[NSDate date] timeIntervalSince1970] * 1000) - params.startTimeMs);
+        double avgSpeed = duration > 0 ? round((taskState.totalBytes * 1000.0) / duration * 100.0) / 100.0 : 0.0;
         
         OBSLog(TAG, @"[Download] completed  objectKey=%@  size=%lld bytes  duration=%.0fms  speed=%.1f KB/s",
                params.objectKey, taskState.totalBytes, duration, avgSpeed / 1024);
